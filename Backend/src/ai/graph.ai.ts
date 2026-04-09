@@ -22,12 +22,44 @@ const state = new StateSchema({
     }),
 });
 
+const getResponseText = (response: any): string => {
+    if (!response) return "";
+    if (typeof response === "string") return response;
+    if (typeof response.content === "string") return response.content;
+    if (typeof response.text === "string") return response.text;
+    if (response.kwargs?.content) return response.kwargs.content;
+    if (response.output?.text) return response.output.text;
+    if (Array.isArray(response.generations)) {
+        const first = response.generations[0];
+        if (typeof first === "string") return first;
+        if (Array.isArray(first) && typeof first[0]?.text === "string") return first[0].text;
+        if (typeof first?.text === "string") return first.text;
+    }
+    return "";
+};
+
 const solutionNode: GraphNode<typeof state> = async (state) => {
     const { problem, modelA, modelB } = state;
     console.log("solutionNode called with:", { problem, modelA, modelB });
 
+    const buildSolutionPrompt = (problem: string, solutionNumber: number, modelKey: string) => {
+        const styleHint = solutionNumber === 1
+            ? 'Provide a concise, formal, direct response with clear final results.'
+            : 'Provide a clear, explanatory response with step-by-step reasoning and professional tone.';
+
+        return `You are an experienced AI assistant answering a user problem.
+Respond professionally, completely, and in a way that helps the user understand the answer.
+Use natural language and avoid code fences or markdown syntax.
+
+${styleHint}
+
+Problem: ${problem}
+
+Answer:`;
+    };
+
     // Try selected models first, then fall back to the confirmed working provider list
-    const getWorkingModel = async (preferredModel: string, fallbackModels: string[]) => {
+    const getWorkingModel = async (preferredModel: string, fallbackModels: string[], solutionNumber: number) => {
         const modelKeys = [preferredModel, ...fallbackModels];
 
         for (const modelKey of modelKeys) {
@@ -43,9 +75,11 @@ const solutionNode: GraphNode<typeof state> = async (state) => {
                 continue;
             }
 
+            const prompt = buildSolutionPrompt(problem, solutionNumber, modelKey);
+
             try {
                 console.log(`Attempting model: ${modelKey}`);
-                const response = await invokeModelWithRetry(model, problem, modelKey);
+                const response = await invokeModelWithRetry(model, prompt, modelKey);
 
                 console.log(`Successful model: ${modelKey}`);
                 return { response, usedModel: modelKey };
@@ -67,14 +101,14 @@ const solutionNode: GraphNode<typeof state> = async (state) => {
     try {
         console.log("Invoking models...");
         const [res1, res2] = await Promise.all([
-            getWorkingModel(modelA, workingModels.solution),
-            getWorkingModel(modelB, workingModels.solution)
+            getWorkingModel(modelA, workingModels.solution, 1),
+            getWorkingModel(modelB, workingModels.solution, 2)
         ]);
 
         console.log("Model responses received");
         return {
-            solution_1: ((res1.response as any).content as string) || "No response generated",
-            solution_2: ((res2.response as any).content as string) || "No response generated",
+            solution_1: getResponseText(res1.response) || "No response generated",
+            solution_2: getResponseText(res2.response) || "No response generated",
         };
     } catch (error) {
         console.error("Error in solutionNode:", error);
@@ -94,30 +128,59 @@ const judgeNode: GraphNode<typeof state> = async (state) => {
     const cleanJsonResponse = (text: string) => {
         if (!text || typeof text !== 'string') return null;
 
-        try {
-            // First try to parse as-is
-            JSON.parse(text);
-            return text;
-        } catch {
-            // If that fails, try to extract and clean JSON
-            let cleaned = text
-                .replace(/```(?:json)?\n?/gi, '')
-                .replace(/```\n?/g, '')
-                .replace(/^[^{]*/, '') // Remove anything before the first {
-                .replace(/[^}]*$/, '') // Remove anything after the last }
-                .trim();
-
-            if (!cleaned.startsWith('{') || !cleaned.endsWith('}')) {
-                return null;
-            }
-
+        const tryParse = (candidate: string) => {
             try {
-                JSON.parse(cleaned);
-                return cleaned;
+                JSON.parse(candidate);
+                return candidate;
             } catch {
                 return null;
             }
+        };
+
+        const sanitizeMultilineJsonStrings = (jsonString: string) => {
+            let inString = false;
+            let escaped = false;
+            let result = "";
+
+            for (const char of jsonString) {
+                if (char === '"' && !escaped) {
+                    inString = !inString;
+                }
+
+                if ((char === '\n' || char === '\r') && inString && !escaped) {
+                    result += '\\n';
+                    escaped = false;
+                    continue;
+                }
+
+                result += char;
+                if (escaped) {
+                    escaped = false;
+                } else if (char === '\\') {
+                    escaped = true;
+                }
+            }
+
+            return result;
+        };
+
+        const direct = tryParse(text);
+        if (direct) return direct;
+
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            const cleaned = jsonMatch[0]
+                .replace(/```(?:json)?\n?/gi, '')
+                .replace(/```\n?/g, '')
+                .trim();
+
+            if (cleaned.startsWith('{') && cleaned.endsWith('}')) {
+                const sanitized = sanitizeMultilineJsonStrings(cleaned);
+                return tryParse(sanitized);
+            }
         }
+
+        return null;
     };
 
     // Try selected judge model first, then fall back to confirmed working judge providers
@@ -137,20 +200,27 @@ const judgeNode: GraphNode<typeof state> = async (state) => {
                 continue;
             }
 
-            const prompt = `Evaluate these two AI solutions to the problem: "${problem}"
+            const prompt = `You are a professional AI evaluator. Compare Solution 1 and Solution 2 against the original problem.
+
+Problem: ${problem}
 
 Solution 1: ${solution_1}
 
 Solution 2: ${solution_2}
 
-Return only JSON like this:
+Score each solution from 0 to 10 based on correctness, completeness, clarity, relevance, and how well it solves the user's request.
+Also provide a polished ideal solution summary that shows the best possible answer.
+
+Return only valid JSON exactly in this format and nothing else:
 {
-  "ideal_solution": "brief description of the correct answer",
-  "solution_1_score": 8,
-  "solution_2_score": 7,
-  "solution_1_reasoning": "why this score for solution 1",
-  "solution_2_reasoning": "why this score for solution 2"
-}`;
+  "ideal_solution": "a concise professional ideal answer to the problem",
+  "solution_1_score": 0,
+  "solution_2_score": 0,
+  "solution_1_reasoning": "professional evaluation explaining the score for solution 1",
+  "solution_2_reasoning": "professional evaluation explaining the score for solution 2"
+}
+
+If the solutions are equal in quality, explain why they are tied. If one is stronger, explain precisely why it is better.`;
 
             try {
                 console.log(`Attempting judge model: ${judgeKey}`);
@@ -185,7 +255,7 @@ Return only JSON like this:
         console.log("Invoking judge model...");
         const { response } = await getWorkingJudgeModel(judgeModel, workingModels.judge);
         console.log("Judge response received");
-        const content = (response as any).content as string;
+        const content = getResponseText(response);
 
         // Try to parse JSON from the response
         let parsedResponse;
