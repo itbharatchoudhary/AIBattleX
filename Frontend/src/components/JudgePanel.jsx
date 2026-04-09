@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ScoreBar from './ScoreBar';
 import { JudgeSkeleton } from './Skeleton';
+import { MODELS } from './SolutionCard';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -78,15 +79,15 @@ function ReasoningAccordion({ label, icon, reasoning, color }) {
   );
 }
 
-export default function JudgePanel({ judge, isLoading, problem }) {
+export default function JudgePanel({ judge, isLoading, problem, judgeModel, selectedModels }) {
   if (!judge && !isLoading) return null;
 
   const winner =
     judge
       ? judge.solution_1_score > judge.solution_2_score
-        ? 'mistral'
+        ? selectedModels?.modelA
         : judge.solution_2_score > judge.solution_1_score
-        ? 'cohere'
+        ? selectedModels?.modelB
         : 'tie'
       : null;
 
@@ -100,15 +101,15 @@ export default function JudgePanel({ judge, isLoading, problem }) {
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-yellow-500/30 to-amber-600/20 border border-yellow-500/30 flex items-center justify-center text-lg">
-          ⚖️
+          {MODELS[judgeModel]?.icon || '⚖️'}
         </div>
         <div>
-          <h3 className="font-semibold text-slate-800 dark:text-white text-sm">Gemini Judge</h3>
-          <p className="text-slate-500 dark:text-white/40 text-xs">AI-powered verdict</p>
+          <h3 className="font-semibold text-slate-800 dark:text-white text-sm">{MODELS[judgeModel]?.name || 'AI'} Judge</h3>
+          <p className="text-slate-500 dark:text-white/40 text-xs">{MODELS[judgeModel]?.label || 'AI-powered verdict'}</p>
         </div>
         {winner && winner !== 'tie' && (
           <div className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-yellow-300 dark:bg-yellow-400/15 border border-amber-500/20 dark:border-yellow-400/30">
-            {winner === 'mistral' ? '🔥 Mistral Wins' : '⚡ Cohere Wins'}
+            {MODELS[winner]?.icon} {MODELS[winner]?.name} Wins
           </div>
         )}
         {winner === 'tie' && (
@@ -133,17 +134,17 @@ export default function JudgePanel({ judge, isLoading, problem }) {
           {/* Score Bars */}
           <div className="flex flex-col gap-3">
             <ScoreBar
-              label="🔥 Mistral"
+              label={`${MODELS[selectedModels?.modelA]?.icon} ${MODELS[selectedModels?.modelA]?.name}`}
               score={judge.solution_1_score}
               color="linear-gradient(90deg, #f97316, #fb923c)"
-              isWinner={winner === 'mistral'}
+              isWinner={winner === selectedModels?.modelA}
               delay={0}
             />
             <ScoreBar
-              label="⚡ Cohere"
+              label={`${MODELS[selectedModels?.modelB]?.icon} ${MODELS[selectedModels?.modelB]?.name}`}
               score={judge.solution_2_score}
               color="linear-gradient(90deg, #8b5cf6, #a78bfa)"
-              isWinner={winner === 'cohere'}
+              isWinner={winner === selectedModels?.modelB}
               delay={200}
             />
           </div>
@@ -156,21 +157,21 @@ export default function JudgePanel({ judge, isLoading, problem }) {
             <p className="text-xs text-slate-500 dark:text-white/40 font-medium uppercase tracking-widest mb-1">Judge Reasoning</p>
             {judge.ideal_solution && (
               <ReasoningAccordion
-                label="Gemini's Ideal Answer"
+                label={`${MODELS[judgeModel]?.name} Ideal Answer`}
                 icon="💡"
                 reasoning={judge.ideal_solution}
                 color="blue"
               />
             )}
             <ReasoningAccordion
-              label="Mistral"
-              icon="🔥"
+              label={MODELS[selectedModels?.modelA]?.name}
+              icon={MODELS[selectedModels?.modelA]?.icon}
               reasoning={judge.solution_1_reasoning}
               color="orange"
             />
             <ReasoningAccordion
-              label="Cohere"
-              icon="⚡"
+              label={MODELS[selectedModels?.modelB]?.name}
+              icon={MODELS[selectedModels?.modelB]?.icon}
               reasoning={judge.solution_2_reasoning}
               color="violet"
             />

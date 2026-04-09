@@ -3,7 +3,16 @@ import { motion } from 'framer-motion';
 import TypewriterText from './TypewriterText';
 import Skeleton from './Skeleton';
 
-const MODELS = {
+export const MODELS = {
+  gemini: {
+    name: 'Gemini',
+    label: 'Google Gemini',
+    icon: '🤖',
+    accent: 'from-blue-500/20 to-cyan-500/10',
+    badge: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+    ring: 'ring-blue-500/30',
+    dot: 'bg-blue-400',
+  },
   mistral: {
     name: 'Mistral',
     label: 'Mistral AI',
@@ -21,6 +30,24 @@ const MODELS = {
     badge: 'bg-violet-500/20 text-violet-300 border-violet-500/30',
     ring: 'ring-violet-500/30',
     dot: 'bg-violet-400',
+  },
+  openai: {
+    name: 'GPT-4o',
+    label: 'OpenAI GPT-4o',
+    icon: '🧠',
+    accent: 'from-green-500/20 to-emerald-500/10',
+    badge: 'bg-green-500/20 text-green-300 border-green-500/30',
+    ring: 'ring-green-500/30',
+    dot: 'bg-green-400',
+  },
+  claude: {
+    name: 'Claude',
+    label: 'Anthropic Claude',
+    icon: '🦜',
+    accent: 'from-red-500/20 to-pink-500/10',
+    badge: 'bg-red-500/20 text-red-300 border-red-500/30',
+    ring: 'ring-red-500/30',
+    dot: 'bg-red-400',
   },
 };
 
@@ -105,7 +132,28 @@ export default function SolutionCard({ model, content, isLoading, isWinner }) {
       {/* Card Body */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 text-sm leading-relaxed text-slate-700 dark:text-white/80 font-light scroll-smooth">
         {isLoading ? (
-          <Skeleton />
+          <div className="space-y-4">
+            {/* Progress indicator */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-1.5 bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+              </div>
+              <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-white/50">
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
+                Generating...
+              </div>
+            </div>
+            <Skeleton />
+          </div>
         ) : content ? (
           <TypewriterText text={content} speed={2} onUpdate={handleUpdate} />
         ) : (

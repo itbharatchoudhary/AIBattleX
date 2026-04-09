@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-export default function PromptInput({ onSubmit, isLoading, onReset, hasResult }) {
+export default function PromptInput({ onSubmit, isLoading, onReset, hasResult, models }) {
   const textareaRef = useRef(null);
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export default function PromptInput({ onSubmit, isLoading, onReset, hasResult })
   const submit = () => {
     const value = textareaRef.current?.value?.trim();
     if (!value || isLoading) return;
-    onSubmit(value);
+    onSubmit(value, models);
     // Reset height after submit
     if (textareaRef.current) {
       textareaRef.current.value = '';

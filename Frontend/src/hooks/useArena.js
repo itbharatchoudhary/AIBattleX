@@ -22,24 +22,46 @@ export function useArena() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [history, setHistory] = useState(loadHistory);
+  const [lastProblem, setLastProblem] = useState(null);
+  const [lastModels, setLastModels] = useState(null);
 
-  const submitProblem = useCallback(async (problem) => {
+  const submitProblem = useCallback(async (problem, models = {}) => {
     if (!problem.trim()) return;
+
+    const { modelA = 'mistral', modelB = 'mistral', judgeModel = 'mistral' } = models;
+
+    // Validation
+    if (modelA === modelB) {
+      setError('Model A and Model B must be different');
+      setStatus('error');
+      return;
+    }
+    if (judgeModel === modelA || judgeModel === modelB) {
+      setError('Judge model must be different from competing models');
+      setStatus('error');
+      return;
+    }
 
     setStatus('loading');
     setResult(null);
     setError(null);
+    setLastProblem(problem);
+    setLastModels(models);
 
     try {
-      const { data } = await api.post('/invoke', {  input: problem });
-
-      if (!data.success) throw new Error('API returned success: false');
+      const { data } = await api.post('/invoke', {
+        input: problem,
+        modelA: models.modelA || 'mistral',
+        modelB: models.modelB || 'mistral',
+        judgeModel: models.judgeModel || 'mistral'
+      });
 
       const entry = {
         id: Date.now(),
         problem,
         timestamp: new Date().toISOString(),
         result: data.data,
+        models: models
       };
 
       const updated = [entry, ...loadHistory()];
@@ -56,6 +78,12 @@ export function useArena() {
       setStatus('error');
     }
   }, []);
+
+  const retry = useCallback(() => {
+    if (lastProblem && lastModels) {
+      submitProblem(lastProblem, lastModels);
+    }
+  }, [lastProblem, lastModels, submitProblem]);
 
   const reset = useCallback(() => {
     setStatus('idle');
@@ -79,8 +107,7 @@ export function useArena() {
     result,
     error,
     history,
-    submitProblem,
-    reset,
+    submitProblem,    retry,    reset,
     loadFromHistory,
     clearHistory,
   };
