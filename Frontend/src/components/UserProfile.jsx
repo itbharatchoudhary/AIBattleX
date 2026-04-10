@@ -245,8 +245,8 @@ export default function UserProfile({ onBack }) {
           <div className="flex flex-col items-center gap-4 text-center">
             <div className="w-14 h-14 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
             <div>
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Loading Profile</h2>
-              <p className="text-sm text-slate-500 dark:text-white/60">Fetching your latest profile, plan, and usage data. The reload button remains visible so the UI feels stable.</p>
+              <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Setting up your Arena</h2>
+              <p className="text-sm text-slate-500 dark:text-white/60">Preparing your private profile and usage stats for a premium experience.</p>
             </div>
           </div>
         </div>

@@ -1,29 +1,37 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import api from '../lib/axios';
 
-function loadHistory(userId) {
-  const HISTORY_KEY = `battle_arena_history_${userId || 'guest'}`;
-  try {
-    return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-  } catch {
-    return [];
-  }
-}
-
-function saveHistory(history, userId) {
-  const HISTORY_KEY = `battle_arena_history_${userId || 'guest'}`;
-  try {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 30)));
-  } catch {}
-}
-
-export function useArena(userId) {
+export function useArena(user) {
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [history, setHistory] = useState(() => loadHistory(userId));
+  const [history, setHistory] = useState([]);
   const [lastProblem, setLastProblem] = useState(null);
   const [lastModels, setLastModels] = useState(null);
+
+  const userId = user?._id || user?.id;
+
+  // Load history from backend
+  const fetchHistory = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const { data } = await api.get('/history');
+      if (data.success) {
+        // Map _id to id for frontend compatibility
+        const normalized = data.data.map(entry => ({
+          ...entry,
+          id: entry._id
+        }));
+        setHistory(normalized);
+      }
+    } catch (err) {
+      console.error('Failed to fetch history:', err);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
 
   const submitProblem = useCallback(async (problem, models = {}) => {
     if (!problem.trim()) return;
@@ -56,18 +64,12 @@ export function useArena(userId) {
         judgeModel: models.judgeModel || 'mistral'
       });
 
-      const entry = {
-        id: Date.now(),
-        problem,
-        timestamp: new Date().toISOString(),
-        result: data.data,
-        models: models
-      };
+      const resultData = data.data;
 
-      const updated = [entry, ...loadHistory(userId)];
-      saveHistory(updated, userId);
-      setHistory(updated);
-      setResult(data.data);
+      // Sync history after successful invocation (backend saved it)
+      fetchHistory();
+
+      setResult(resultData);
       setStatus('success');
     } catch (err) {
       const msg =
@@ -97,18 +99,38 @@ export function useArena(userId) {
     setError(null);
   }, []);
 
-  const clearHistory = useCallback(() => {
-    setHistory([]);
-    saveHistory([], userId);
-  }, [userId]);
+  const clearHistory = useCallback(async () => {
+    try {
+      const { data } = await api.delete('/history');
+      if (data.success) {
+        setHistory([]);
+      }
+    } catch (err) {
+      console.error('Failed to clear history:', err);
+    }
+  }, []);
+
+  const deleteHistoryItem = useCallback(async (id) => {
+    try {
+      const { data } = await api.delete(`/history/${id}`);
+      if (data.success) {
+        setHistory(prev => prev.filter(item => item.id !== id));
+      }
+    } catch (err) {
+      console.error('Failed to delete history item:', err);
+    }
+  }, []);
 
   return {
     status,
     result,
     error,
     history,
-    submitProblem,    retry,    reset,
+    submitProblem,
+    retry,
+    reset,
     loadFromHistory,
     clearHistory,
+    deleteHistoryItem,
   };
 }

@@ -151,14 +151,19 @@ export default function JudgePanel({ judge, isLoading, problem, judgeModel, sele
 
           {/* Verdict */}
           {judge.verdict && (
-            <div className="p-4 rounded-xl bg-gradient-to-r from-slate-500/10 to-slate-600/10 border border-slate-500/20 dark:border-slate-400/30">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">🏆</span>
-                <h4 className="font-semibold text-slate-700 dark:text-slate-300 text-sm">Final Verdict</h4>
+            <div className="relative group overflow-hidden">
+              <div className="absolute -inset-1 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-2xl blur-md opacity-50 group-hover:opacity-100 transition-opacity" />
+              <div className="relative p-5 rounded-2xl bg-gradient-to-br from-amber-500/[0.03] to-orange-500/[0.03] border border-amber-500/20 dark:border-amber-400/10">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-sm shadow-inner">
+                    🏆
+                  </div>
+                  <h4 className="font-bold text-slate-800 dark:text-amber-200/90 text-sm tracking-tight">Final Verdict</h4>
+                </div>
+                <p className="text-sm text-slate-700 dark:text-white/80 leading-relaxed font-medium">
+                  {judge.verdict}
+                </p>
               </div>
-              <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed">
-                {judge.verdict}
-              </p>
             </div>
           )}
 
@@ -166,12 +171,12 @@ export default function JudgePanel({ judge, isLoading, problem, judgeModel, sele
           <div className="h-px bg-slate-200 dark:bg-white/10" />
 
           {/* Reasoning Accordions */}
-          <div className="flex flex-col gap-2">
-            <p className="text-xs text-slate-500 dark:text-white/40 font-medium uppercase tracking-widest mb-1">Judge Reasoning</p>
+          <div className="flex flex-col gap-3">
+            <p className="text-[10px] text-slate-400 dark:text-white/20 font-bold uppercase tracking-[0.2em] mb-1 px-1">Detailed Analysis</p>
             {judge.ideal_solution && (
               <ReasoningAccordion
                 label={`${MODELS[judgeModel]?.name} Ideal Answer`}
-                icon="💡"
+                icon={MODELS[judgeModel]?.icon || "💡"}
                 reasoning={judge.ideal_solution}
                 color="blue"
               />

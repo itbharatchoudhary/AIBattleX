@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import Usage from "../models/usage.model.js";
+import History from "../models/history.model.js";
 import rungraph from "../ai/graph.ai.js";
 
 export const invokeGraph = async (req: any, res: any) => {
@@ -46,10 +47,33 @@ export const invokeGraph = async (req: any, res: any) => {
       await usage.save();
     }
 
-    res.json({
-      success: true,
-      data: result
-    });
+    // Automatically save to history
+    try {
+      const historyEntry = new History({
+        userId,
+        problem: input,
+        result: result,
+        models: {
+          modelA,
+          modelB,
+          judgeModel
+        }
+      });
+      await historyEntry.save();
+      
+      res.json({
+        success: true,
+        data: result,
+        historyId: historyEntry._id
+      });
+    } catch (historyErr) {
+      console.error("Failed to save history automatically:", historyErr);
+      // Still return the result even if history save fails, but log it
+      res.json({
+        success: true,
+        data: result
+      });
+    }
 
   } catch (err) {
     console.error("Error in invokeGraph:", err);

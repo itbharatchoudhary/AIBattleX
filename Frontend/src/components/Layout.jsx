@@ -1,12 +1,13 @@
 import Sidebar from './Sidebar';
 
-export default function Layout({ children, history, onSelectHistory, onClearHistory, darkMode, onToggleDark, onNewBattle, onProfile, user, onLogout }) {
+export default function Layout({ children, history, onSelectHistory, onClearHistory, onDeleteHistory, darkMode, onToggleDark, onNewBattle, onProfile, user, onLogout }) {
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       <Sidebar
         history={history}
         onSelectHistory={onSelectHistory}
         onClearHistory={onClearHistory}
+        onDeleteHistory={onDeleteHistory}
         darkMode={darkMode}
         onToggleDark={onToggleDark}
         onNewBattle={onNewBattle}

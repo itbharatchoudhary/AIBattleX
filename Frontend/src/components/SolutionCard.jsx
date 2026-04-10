@@ -7,6 +7,7 @@ export const MODELS = {
   gemini: {
     name: 'Gemini',
     label: 'Google Gemini',
+    description: 'Most versatile for creative & logical tasks.',
     icon: '🤖',
     accent: 'from-slate-500/20 to-slate-600/10',
     badge: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
@@ -16,6 +17,7 @@ export const MODELS = {
   mistral: {
     name: 'Mistral',
     label: 'Mistral AI',
+    description: 'Fast, efficient, and great for concise answers.',
     icon: '🔥',
     accent: 'from-slate-400/20 to-slate-500/10',
     badge: 'bg-slate-400/20 text-slate-300 border-slate-400/30',
@@ -25,6 +27,7 @@ export const MODELS = {
   cohere: {
     name: 'Cohere',
     label: 'Cohere AI',
+    description: 'Excellent for RAG & complex reasoning.',
     icon: '⚡',
     accent: 'from-slate-600/20 to-slate-700/10',
     badge: 'bg-slate-600/20 text-slate-300 border-slate-600/30',
@@ -34,6 +37,7 @@ export const MODELS = {
   openai: {
     name: 'GPT-4o',
     label: 'OpenAI GPT-4o',
+    description: 'High intelligence and complex instructions.',
     icon: '🧠',
     accent: 'from-slate-300/20 to-slate-400/10',
     badge: 'bg-slate-300/20 text-slate-300 border-slate-300/30',
@@ -43,6 +47,7 @@ export const MODELS = {
   claude: {
     name: 'Claude',
     label: 'Anthropic Claude',
+    description: 'Nuanced reasoning and natural tone.',
     icon: '🦜',
     accent: 'from-slate-700/20 to-slate-800/10',
     badge: 'bg-slate-700/20 text-slate-300 border-slate-700/30',
@@ -78,11 +83,11 @@ export default function SolutionCard({ model, content, isLoading, isWinner }) {
       className={`
         glass rounded-2xl flex flex-col h-full overflow-hidden
         ${isWinner ? `ring-2 ${meta.ring}` : ''}
-        bg-gradient-to-b ${meta.accent}
+        bg-opacity-50 dark:bg-opacity-40
       `}
     >
       {/* Card Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200/50 dark:border-white/10 shrink-0">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-white/5 shrink-0">
         <div className="flex items-center gap-3">
           <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg bg-gradient-to-br ${meta.accent} border border-slate-200/50 dark:border-white/10`}>
             {meta.icon}
@@ -130,7 +135,7 @@ export default function SolutionCard({ model, content, isLoading, isWinner }) {
       </div>
 
       {/* Card Body */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 text-sm leading-relaxed text-slate-700 dark:text-white/80 font-light scroll-smooth">
+      <div ref={scrollRef} className="flex-1 p-5 text-sm leading-relaxed text-slate-700 dark:text-white/80 font-light">
         {isLoading ? (
           <div className="space-y-4">
             {/* Progress indicator */}
