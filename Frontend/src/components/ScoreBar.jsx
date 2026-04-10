@@ -35,7 +35,7 @@ export default function ScoreBar({ label, score, color, isWinner, delay = 0 }) {
   return (
     <div
       className={`relative rounded-2xl p-4 transition-all duration-300 ${isWinner
-          ? 'ring-2 ring-yellow-400/60 bg-yellow-400/10 dark:bg-yellow-400/5'
+          ? 'ring-2 ring-slate-400/60 bg-slate-400/10 dark:bg-slate-400/5'
           : 'bg-slate-200/60 dark:bg-white/5'
         }`}
     >
@@ -50,13 +50,13 @@ export default function ScoreBar({ label, score, color, isWinner, delay = 0 }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-yellow-500 dark:text-yellow-400 text-xs tracking-wider">
+          <span className="text-slate-500 dark:text-slate-400 text-xs tracking-wider">
             {'⭐'.repeat(stars)}{'☆'.repeat(5 - stars)}
           </span>
 
           <span
             className={`text-2xl font-bold tabular-nums ${isWinner
-                ? 'text-yellow-500 dark:text-yellow-400'
+                ? 'text-slate-600 dark:text-slate-300'
                 : 'text-slate-900 dark:text-white/80'
               }`}
           >

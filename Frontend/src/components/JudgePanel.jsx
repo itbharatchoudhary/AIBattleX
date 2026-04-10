@@ -136,18 +136,31 @@ export default function JudgePanel({ judge, isLoading, problem, judgeModel, sele
             <ScoreBar
               label={`${MODELS[selectedModels?.modelA]?.icon} ${MODELS[selectedModels?.modelA]?.name}`}
               score={judge.solution_1_score}
-              color="linear-gradient(90deg, #f97316, #fb923c)"
+              color="linear-gradient(90deg, #64748b, #94a3b8)"
               isWinner={winner === selectedModels?.modelA}
               delay={0}
             />
             <ScoreBar
               label={`${MODELS[selectedModels?.modelB]?.icon} ${MODELS[selectedModels?.modelB]?.name}`}
               score={judge.solution_2_score}
-              color="linear-gradient(90deg, #8b5cf6, #a78bfa)"
+              color="linear-gradient(90deg, #475569, #64748b)"
               isWinner={winner === selectedModels?.modelB}
               delay={200}
             />
           </div>
+
+          {/* Verdict */}
+          {judge.verdict && (
+            <div className="p-4 rounded-xl bg-gradient-to-r from-slate-500/10 to-slate-600/10 border border-slate-500/20 dark:border-slate-400/30">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">🏆</span>
+                <h4 className="font-semibold text-slate-700 dark:text-slate-300 text-sm">Final Verdict</h4>
+              </div>
+              <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed">
+                {judge.verdict}
+              </p>
+            </div>
+          )}
 
           {/* Divider */}
           <div className="h-px bg-slate-200 dark:bg-white/10" />

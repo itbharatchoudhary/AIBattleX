@@ -1,9 +1,8 @@
 import { useState, useCallback } from 'react';
 import api from '../lib/axios';
 
-const HISTORY_KEY = 'battle_arena_history';
-
-function loadHistory() {
+function loadHistory(userId) {
+  const HISTORY_KEY = `battle_arena_history_${userId || 'guest'}`;
   try {
     return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
   } catch {
@@ -11,17 +10,18 @@ function loadHistory() {
   }
 }
 
-function saveHistory(history) {
+function saveHistory(history, userId) {
+  const HISTORY_KEY = `battle_arena_history_${userId || 'guest'}`;
   try {
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 30)));
   } catch {}
 }
 
-export function useArena() {
+export function useArena(userId) {
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [history, setHistory] = useState(loadHistory);
+  const [history, setHistory] = useState(() => loadHistory(userId));
   const [lastProblem, setLastProblem] = useState(null);
   const [lastModels, setLastModels] = useState(null);
 
@@ -64,8 +64,8 @@ export function useArena() {
         models: models
       };
 
-      const updated = [entry, ...loadHistory()];
-      saveHistory(updated);
+      const updated = [entry, ...loadHistory(userId)];
+      saveHistory(updated, userId);
       setHistory(updated);
       setResult(data.data);
       setStatus('success');
@@ -99,8 +99,8 @@ export function useArena() {
 
   const clearHistory = useCallback(() => {
     setHistory([]);
-    saveHistory([]);
-  }, []);
+    saveHistory([], userId);
+  }, [userId]);
 
   return {
     status,
