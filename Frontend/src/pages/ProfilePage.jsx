@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import api from '../lib/axios';
-import Toast from './Toast';
+import Toast from '../components/Toast';
 
 function UserCard({ user }) {
   return (
