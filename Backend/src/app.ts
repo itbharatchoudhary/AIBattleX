@@ -26,10 +26,11 @@ app.use(cors({
 app.use(express.json());
 
 // Serve static files from the Frontend/dist directory
-app.use(express.static(path.join(__dirname, "../../Frontend/dist")));
+const frontendPath = path.join(__dirname, "../../../Frontend/dist");
+app.use(express.static(frontendPath));
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../Frontend/dist/index.html"));
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
 
 app.use("/auth", authRoutes);
@@ -41,7 +42,7 @@ app.use("/history", historyRoutes);
 // Catch-all route to serve the frontend's index.html for any unknown routes
 // This enables client-side routing (React Router) to work
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../Frontend/dist/index.html"));
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
 
 export default app;
