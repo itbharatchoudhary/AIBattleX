@@ -121,7 +121,7 @@ export default function ArenaPage({
           {/* Model Selectors Panel */}
           <div className="glass rounded-2xl p-4 border border-slate-200/50 dark:border-white/5 bg-slate-50/30 dark:bg-white/[0.02]">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 px-1">
-              <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-400 dark:text-white/20">配置模型 / ARENA CONFIGURATION</h3>
+              <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-400 dark:text-white/20"> ARENA CONFIGURATION</h3>
               <div className="h-px flex-1 bg-slate-200/50 dark:bg-white/5 hidden md:block mx-4" />
             </div>
             
