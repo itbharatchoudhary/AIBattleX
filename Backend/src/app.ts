@@ -1,5 +1,10 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
@@ -20,14 +25,23 @@ app.use(cors({
 
 app.use(express.json());
 
-// app.get("/", (req, res) => {
-//   res.send("AIBattleX Backend is Running!");
-// });
+// Serve static files from the Frontend/dist directory
+app.use(express.static(path.join(__dirname, "../../Frontend/dist")));
 
-app.use("/", authRoutes);
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../Frontend/dist/index.html"));
+});
+
+app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/plans", planRoutes);
 app.use("/invoke", invokeRoutes);
 app.use("/history", historyRoutes);
+
+// Catch-all route to serve the frontend's index.html for any unknown routes
+// This enables client-side routing (React Router) to work
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../Frontend/dist/index.html"));
+});
 
 export default app;
