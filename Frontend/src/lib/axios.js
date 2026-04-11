@@ -1,9 +1,13 @@
 import axios from 'axios';
 
+const isProd = import.meta.env.PROD || import.meta.env.MODE === 'production';
+const baseURL = isProd ? '/' : (import.meta.env.VITE_API_URL || 'http://localhost:3000');
+
+console.log(`[API] Environment: ${isProd ? 'Production' : 'Development'}`);
+console.log(`[API] Base URL: ${baseURL}`);
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL && !import.meta.env.PROD 
-    ? import.meta.env.VITE_API_URL 
-    : (import.meta.env.PROD ? '/' : 'http://localhost:3000'),
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
