@@ -20,11 +20,11 @@ app.use(cors({
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("AIBattleX Backend is Running!");
-});
+// app.get("/", (req, res) => {
+//   res.send("AIBattleX Backend is Running!");
+// });
 
-app.use("/auth", authRoutes);
+app.use("/", authRoutes);
 app.use("/user", userRoutes);
 app.use("/plans", planRoutes);
 app.use("/invoke", invokeRoutes);
