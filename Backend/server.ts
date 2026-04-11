@@ -1,6 +1,8 @@
-import "dotenv/config.js";
+import "dotenv/config";
 import app from "./src/app.js";
 import connectDB from "./src/config/database.js";
+
+console.log("🚀 Starting AIBattleX Server...");
 
 // Start server
 const startServer = async () => {
