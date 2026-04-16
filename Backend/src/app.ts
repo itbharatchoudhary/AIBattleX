@@ -43,25 +43,21 @@ app.get("/", (req, res) => {
   }
 });
 
+// API routes FIRST
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/plans", planRoutes);
 app.use("/invoke", invokeRoutes);
 app.use("/history", historyRoutes);
 
-// Catch-all route to serve the frontend's index.html for any unknown routes
-// This enables client-side routing (React Router) to work
-// Catch-all route to serve the frontend's index.html for any unknown routes
-// This enables client-side routing (React Router) to work
-// Note: In Express 5, '*' is the correct catch-all wildcard
-app.get("*", (req, res) => {
+// Catch-all 
+app.get("/*", (req, res) => {
   const indexPath = path.join(frontendPath, "index.html");
+
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    // If it's an API route that was missed, let it fall through or send 404
-    // But since this is a catch-all, we send 404 if index.html is missing
-    res.status(404).send("Not Found");
+    res.status(404).send("Frontend not built");
   }
 });
 
