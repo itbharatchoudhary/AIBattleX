@@ -42,7 +42,7 @@ app.use("/plans", planRoutes);
 app.use("/invoke", invokeRoutes);
 app.use("/history", historyRoutes);
 // Catch-all 
-app.get("(.*)", (req, res) => {
+app.use((req, res) => {
     const indexPath = path.join(frontendPath, "index.html");
     if (fs.existsSync(indexPath)) {
         res.sendFile(indexPath);
