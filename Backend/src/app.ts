@@ -51,7 +51,7 @@ app.use("/invoke", invokeRoutes);
 app.use("/history", historyRoutes);
 
 // Catch-all 
-app.get("/*", (req, res) => {
+app.get("*", (req, res) => {
   const indexPath = path.join(frontendPath, "index.html");
 
   if (fs.existsSync(indexPath)) {
