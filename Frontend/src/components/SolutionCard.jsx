@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import TypewriterText from './TypewriterText';
 import Skeleton from './Skeleton';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const MODELS = {
   gemini: {
     name: 'Gemini',
@@ -66,7 +67,9 @@ export default function SolutionCard({ model, content, isLoading, isWinner }) {
       await navigator.clipboard.writeText(content || '');
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch { }
+    } catch {
+      // no-op
+    }
   };
 
   const handleUpdate = () => {

@@ -12,7 +12,9 @@ function CodeBlock({ language, value }) {
       await navigator.clipboard.writeText(value);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch {}
+    } catch {
+      // no-op
+    }
   };
 
   return (
@@ -90,7 +92,7 @@ export default function TypewriterText({ text, speed = 8, className = '', onDone
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       lastTimeRef.current = null;
     };
-  }, [text, speed]);
+  }, [text, speed, onDone, onUpdate]);
 
   const isTyping = text && displayed.length < text.length;
 
@@ -99,7 +101,7 @@ export default function TypewriterText({ text, speed = 8, className = '', onDone
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({ node, inline, className, children, ...props }) {
+          code({ inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
             const lang = match ? match[1] : 'text';
             const value = String(children).replace(/\n$/, '');

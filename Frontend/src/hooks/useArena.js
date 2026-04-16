@@ -79,7 +79,7 @@ export function useArena(user) {
       setError(msg);
       setStatus('error');
     }
-  }, []);
+  }, [fetchHistory]);
 
   const retry = useCallback(() => {
     if (lastProblem && lastModels) {

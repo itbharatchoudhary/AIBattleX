@@ -37,12 +37,10 @@ function groupHistoryByDate(history) {
     }
   });
 
-  return Object.entries(groups).filter(([_, items]) => items.length > 0);
+  return Object.entries(groups).filter(([, items]) => items.length > 0);
 }
 
 function HistoryItem({ entry, onSelect, onDelete, collapsed }) {
-  const [showMenu, setShowMenu] = useState(false);
-
   return (
     <motion.div
       layout

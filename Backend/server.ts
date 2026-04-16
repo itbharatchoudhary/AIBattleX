@@ -18,8 +18,6 @@ const startServer = async () => {
   }
   catch (error) {
     console.error(" Failed to start server:");
-    console.error(error); 
-    console.error("ENV:", process.env.MONGO_URI); 
     process.exit(1);
   }
 };

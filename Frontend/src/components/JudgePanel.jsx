@@ -19,7 +19,7 @@ function ChevronIcon({ open }) {
   );
 }
 
-function ReasoningAccordion({ label, icon, reasoning, color }) {
+function ReasoningAccordion({ label, icon, reasoning }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -47,7 +47,7 @@ function ReasoningAccordion({ label, icon, reasoning, color }) {
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  code({ node, inline, className, children, ...props }) {
+                  code({ inline, className, children, ...props }) {
                     const match = /language-(\w+)/.exec(className || '');
                     return !inline && match ? (
                       <div className="relative group my-4">

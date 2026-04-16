@@ -65,7 +65,6 @@ function BattleView({ result, isLoading, selectedModels }) {
 }
 
 export default function ArenaPage({
-  status,
   result,
   error,
   selectedModels,

@@ -49,7 +49,7 @@ export default function App() {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
         setIsAuthenticated(true);
-      } catch (err) {
+      } catch {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }

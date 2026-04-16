@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MODELS } from './SolutionCard';
 
-export default function ModelSelector({ value, onChange, disabledSize, disabled = false }) {
+export default function ModelSelector({ value, onChange, disabled = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
   const buttonRef = useRef(null);
