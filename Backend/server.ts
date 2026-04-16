@@ -9,14 +9,17 @@ const startServer = async () => {
   try {
     console.log(" Connecting to MongoDB...");
     await connectDB();
-    
+
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
       console.log(` Server is running on port ${PORT}`);
       console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
     });
-  } catch (error) {
-    console.error(" Failed to start server:", error);
+  }
+  catch (error) {
+    console.error(" Failed to start server:");
+    console.error(error); 
+    console.error("ENV:", process.env.MONGO_URI); 
     process.exit(1);
   }
 };
